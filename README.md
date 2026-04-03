@@ -12,41 +12,61 @@
 ```
 src/main/java/com/financeapp/
 ├── FinanceAppApplication.java
+│
 ├── config/
+│   ├── OpenApiConfig.java
 │   └── SecurityConfig.java
+│
 ├── controller/
 │   ├── AuthController.java
+│   ├── FinancialRecordController.java
 │   └── UserController.java
+│
 ├── dto/
 │   ├── AuthResponse.java
+│   ├── FinancialRecordRequest.java
+│   ├── FinancialRecordResponse.java
 │   ├── LoginRequest.java
 │   ├── RoleUpdateRequest.java
 │   ├── StatusUpdateRequest.java
 │   ├── UserRequest.java
 │   └── UserResponse.java
+│
 ├── entity/
-│   ├── Role.java          (VIEWER | ANALYST | ADMIN)
-│   ├── Status.java        (ACTIVE | INACTIVE)
+│   ├── FinancialRecord.java
+│   ├── Role.java              (VIEWER | ANALYST | ADMIN)
+│   ├── Status.java            (ACTIVE | INACTIVE)
+│   ├── TransactionType.java
 │   └── User.java
+│
 ├── exception/
 │   ├── DuplicateEmailException.java
 │   ├── GlobalExceptionHandler.java
 │   ├── InvalidCredentialsException.java
+│   ├── ResourceNotFoundException.java
 │   └── UserNotFoundException.java
+│
 ├── repository/
+│   ├── FinancialRecordRepository.java
 │   └── UserRepository.java
+│
 ├── security/
 │   ├── CustomUserDetails.java
 │   ├── CustomUserDetailsService.java
 │   ├── JwtAuthenticationFilter.java
 │   └── JwtUtil.java
+│
 ├── service/
 │   ├── AuthService.java
+│   ├── FinancialRecordService.java
 │   ├── UserService.java
 │   └── impl/
 │       ├── AuthServiceImpl.java
+│       ├── FinancialRecordServiceImpl.java
 │       └── UserServiceImpl.java
+│
 └── util/
+    ├── FinancialRecordMapper.java
     └── UserMapper.java
 ```
 
