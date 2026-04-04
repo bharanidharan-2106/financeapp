@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinancialRecordServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-app</a> &gt; <a href="index.source.html" class="el_package">com.financeapp.service.impl</a> &gt; <span class="el_source">FinancialRecordServiceImpl.java</span></div><h1>FinancialRecordServiceImpl.java</h1><pre class="source lang-java linenums">package com.financeapp.service.impl;
+
+import com.financeapp.dto.FinancialRecordRequest;
+import com.financeapp.dto.FinancialRecordResponse;
+import com.financeapp.entity.FinancialRecord;
+import com.financeapp.entity.TransactionType;
+import com.financeapp.entity.User;
+import com.financeapp.exception.ResourceNotFoundException;
+import com.financeapp.repository.FinancialRecordRepository;
+import com.financeapp.repository.UserRepository;
+import com.financeapp.security.CustomUserDetails;
+import com.financeapp.service.FinancialRecordService;
+import com.financeapp.util.FinancialRecordMapper;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+
+@Service
+@Transactional
+public class FinancialRecordServiceImpl implements FinancialRecordService {
+
+    private final FinancialRecordRepository financialRecordRepository;
+    private final UserRepository userRepository;
+
+    public FinancialRecordServiceImpl(FinancialRecordRepository financialRecordRepository,
+<span class="fc" id="L32">                                      UserRepository userRepository) {</span>
+<span class="fc" id="L33">        this.financialRecordRepository = financialRecordRepository;</span>
+<span class="fc" id="L34">        this.userRepository = userRepository;</span>
+<span class="fc" id="L35">    }</span>
+
+    @Override
+    public FinancialRecordResponse createRecord(FinancialRecordRequest request) {
+<span class="fc" id="L39">        User authenticatedUser = resolveAuthenticatedUser();</span>
+<span class="fc" id="L40">        FinancialRecord record = FinancialRecordMapper.toEntity(request, authenticatedUser);</span>
+<span class="fc" id="L41">        FinancialRecord saved = financialRecordRepository.save(record);</span>
+<span class="fc" id="L42">        return FinancialRecordMapper.toResponse(saved);</span>
+    }
+
+    @Override
+    public FinancialRecordResponse updateRecord(Long id, FinancialRecordRequest request) {
+<span class="fc" id="L47">        FinancialRecord existing = findRecordOrThrow(id);</span>
+
+<span class="fc" id="L49">        existing.setAmount(request.getAmount());</span>
+<span class="fc" id="L50">        existing.setType(request.getType());</span>
+<span class="fc" id="L51">        existing.setCategory(request.getCategory());</span>
+<span class="fc" id="L52">        existing.setDate(request.getDate());</span>
+<span class="fc" id="L53">        existing.setDescription(request.getDescription());</span>
+
+<span class="fc" id="L55">        FinancialRecord updated = financialRecordRepository.save(existing);</span>
+<span class="fc" id="L56">        return FinancialRecordMapper.toResponse(updated);</span>
+    }
+
+    @Override
+    public void deleteRecord(Long id) {
+<span class="fc" id="L61">        FinancialRecord existing = findRecordOrThrow(id);</span>
+<span class="fc" id="L62">        financialRecordRepository.delete(existing);</span>
+<span class="fc" id="L63">    }</span>
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page&lt;FinancialRecordResponse&gt; getAllRecords(Pageable pageable) {
+<span class="fc" id="L68">        return financialRecordRepository.findAll(pageable)</span>
+<span class="fc" id="L69">                .map(FinancialRecordMapper::toResponse);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FinancialRecordResponse getRecordById(Long id) {
+<span class="fc" id="L75">        return FinancialRecordMapper.toResponse(findRecordOrThrow(id));</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page&lt;FinancialRecordResponse&gt; filterRecords(
+            LocalDate startDate,
+            LocalDate endDate,
+            String category,
+            TransactionType type,
+            Pageable pageable) {
+
+<span class="fc" id="L87">        return financialRecordRepository</span>
+<span class="fc" id="L88">                .filterRecords(startDate, endDate, category, type, pageable)</span>
+<span class="fc" id="L89">                .map(FinancialRecordMapper::toResponse);</span>
+    }
+
+    private FinancialRecord findRecordOrThrow(Long id) {
+<span class="fc" id="L93">        return financialRecordRepository.findById(id)</span>
+<span class="fc" id="L94">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Financial record&quot;, id));</span>
+    }
+
+    private User resolveAuthenticatedUser() {
+<span class="fc" id="L98">        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="fc" id="L99">        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
+<span class="fc" id="L100">        String email = userDetails.getUsername();</span>
+
+<span class="fc" id="L102">        return userRepository.findByEmail(email)</span>
+<span class="pc" id="L103">                .orElseThrow(() -&gt; new ResourceNotFoundException(</span>
+                        &quot;Authenticated user not found in database: &quot; + email));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

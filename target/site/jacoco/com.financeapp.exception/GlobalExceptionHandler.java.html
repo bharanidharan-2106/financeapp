@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-app</a> &gt; <a href="index.source.html" class="el_package">com.financeapp.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.financeapp.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+<span class="fc" id="L16">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleUserNotFoundException(UserNotFoundException ex) {
+<span class="nc" id="L20">        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);</span>
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleDuplicateEmailException(DuplicateEmailException ex) {
+<span class="nc" id="L25">        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);</span>
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleInvalidCredentialsException(InvalidCredentialsException ex) {
+<span class="fc" id="L30">        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);</span>
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleAccessDeniedException(AccessDeniedException ex) {
+<span class="fc" id="L35">        return buildErrorResponse(&quot;You do not have permission to access this resource&quot;, HttpStatus.FORBIDDEN);</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ValidationErrorResponse&gt; handleValidationException(MethodArgumentNotValidException ex) {
+<span class="nc" id="L40">        Map&lt;String, String&gt; fieldErrors = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        for (FieldError error : ex.getBindingResult().getFieldErrors()) {</span>
+<span class="nc" id="L42">            fieldErrors.put(error.getField(), error.getDefaultMessage());</span>
+<span class="nc" id="L43">        }</span>
+<span class="nc" id="L44">        ValidationErrorResponse response = new ValidationErrorResponse(</span>
+<span class="nc" id="L45">                HttpStatus.BAD_REQUEST.value(),</span>
+                &quot;Validation failed&quot;,
+<span class="nc" id="L47">                LocalDateTime.now(),</span>
+                fieldErrors
+        );
+<span class="nc" id="L50">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleGenericException(Exception ex) {
+<span class="fc" id="L55">        return buildErrorResponse(&quot;An unexpected error occurred&quot;, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+
+    private ResponseEntity&lt;ErrorResponse&gt; buildErrorResponse(String message, HttpStatus status) {
+<span class="fc" id="L59">        ErrorResponse response = new ErrorResponse(status.value(), message, LocalDateTime.now());</span>
+<span class="fc" id="L60">        return ResponseEntity.status(status).body(response);</span>
+    }
+
+<span class="fc" id="L63">    public record ErrorResponse(int status, String message, LocalDateTime timestamp) {}</span>
+
+<span class="nc" id="L65">    public record ValidationErrorResponse(int status, String message, LocalDateTime timestamp,</span>
+                                          Map&lt;String, String&gt; errors) {}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

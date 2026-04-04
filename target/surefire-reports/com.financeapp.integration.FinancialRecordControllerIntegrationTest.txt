@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.financeapp.integration.FinancialRecordControllerIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.723 s -- in com.financeapp.integration.FinancialRecordControllerIntegrationTest

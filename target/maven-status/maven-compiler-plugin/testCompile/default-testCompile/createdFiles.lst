@@ -1,0 +1,9 @@
+com\financeapp\integration\FinancialRecordControllerIntegrationTest.class
+com\financeapp\integration\AuthControllerIntegrationTest.class
+com\financeapp\service\DashboardServiceTest.class
+com\financeapp\service\FinancialRecordServiceTest.class
+com\financeapp\integration\EndToEndIntegrationTest.class
+com\financeapp\integration\UserControllerIntegrationTest.class
+com\financeapp\service\AuthServiceTest.class
+com\financeapp\service\UserServiceTest.class
+com\financeapp\integration\DashboardControllerIntegrationTest.class
