@@ -1,301 +1,338 @@
-# Finance App — Spring Boot Backend
+# Finance Data Processing & Access Control Backend
 
-## Stack
-- Java 17, Spring Boot 3.2, Spring Security 6
-- PostgreSQL, Spring Data JPA
-- JWT (jjwt 0.11.5), BCrypt, Lombok
+## Project Overview
 
----
+This project is a **production-grade backend system** for a finance dashboard application. It is designed to manage financial records, enforce role-based access control, and provide analytical insights through aggregated APIs.
 
-## Project Structure
+The system demonstrates strong backend engineering practices including:
 
-```
-src/main/java/com/financeapp/
-├── FinanceAppApplication.java
-│
-├── config/
-│   ├── OpenApiConfig.java
-│   └── SecurityConfig.java
-│
-├── controller/
-│   ├── AuthController.java
-│   ├── FinancialRecordController.java
-│   └── UserController.java
-│
-├── dto/
-│   ├── AuthResponse.java
-│   ├── FinancialRecordRequest.java
-│   ├── FinancialRecordResponse.java
-│   ├── LoginRequest.java
-│   ├── RoleUpdateRequest.java
-│   ├── StatusUpdateRequest.java
-│   ├── UserRequest.java
-│   └── UserResponse.java
-│
-├── entity/
-│   ├── FinancialRecord.java
-│   ├── Role.java              (VIEWER | ANALYST | ADMIN)
-│   ├── Status.java            (ACTIVE | INACTIVE)
-│   ├── TransactionType.java
-│   └── User.java
-│
-├── exception/
-│   ├── DuplicateEmailException.java
-│   ├── GlobalExceptionHandler.java
-│   ├── InvalidCredentialsException.java
-│   ├── ResourceNotFoundException.java
-│   └── UserNotFoundException.java
-│
-├── repository/
-│   ├── FinancialRecordRepository.java
-│   └── UserRepository.java
-│
-├── security/
-│   ├── CustomUserDetails.java
-│   ├── CustomUserDetailsService.java
-│   ├── JwtAuthenticationFilter.java
-│   └── JwtUtil.java
-│
-├── service/
-│   ├── AuthService.java
-│   ├── FinancialRecordService.java
-│   ├── UserService.java
-│   └── impl/
-│       ├── AuthServiceImpl.java
-│       ├── FinancialRecordServiceImpl.java
-│       └── UserServiceImpl.java
-│
-└── util/
-    ├── FinancialRecordMapper.java
-    └── UserMapper.java
-```
+* Clean architecture (Controller → Service → Repository)
+* JWT-based authentication
+* Role-based authorization (RBAC)
+* Data validation and global error handling
+* Pagination, filtering, and sorting
+* Dashboard analytics
+* Comprehensive test coverage (unit, integration, security)
 
 ---
 
-## Setup
+## Objective
 
-### 1. Create the PostgreSQL database
-```sql
-CREATE DATABASE financeapp;
+To build a scalable and maintainable backend that:
+
+* Manages users and roles securely
+* Handles financial transactions efficiently
+* Provides analytical insights for dashboards
+* Enforces strict access control
+* Demonstrates real-world backend design patterns
+
+---
+
+## Tech Stack
+
+| Layer      | Technology              |
+| ---------- | ----------------------- |
+| Language   | Java 17                 |
+| Framework  | Spring Boot 3           |
+| Security   | Spring Security + JWT   |
+| Database   | PostgreSQL              |
+| ORM        | Spring Data JPA         |
+| Build Tool | Maven                   |
+| API Docs   | Swagger (OpenAPI)       |
+| Testing    | JUnit, Mockito, MockMvc |
+
+---
+
+##Project Modules
+
+---
+
+### 1. Authentication & Authorization Module
+
+**Features:**
+
+* User login with JWT token generation
+* Stateless authentication
+* Token validation for every request
+* Role-based access enforcement
+
+**Key Components:**
+
+* `AuthController`
+* `AuthService`
+* `JwtUtil`
+* `JwtAuthenticationFilter`
+* `SecurityConfig`
+
+---
+
+### 2. User Management Module
+
+**Features:**
+
+* Create users
+* Assign roles (ADMIN, ANALYST, VIEWER)
+* Activate / deactivate users
+* Fetch user details
+
+**Access Control:**
+
+* Only ADMIN can create/update users
+
+---
+
+### 3. Financial Records Module
+
+**Features:**
+
+* Create, update, delete financial records
+* Filter by:
+
+  * Date range
+  * Category
+  * Transaction type
+* Pagination & sorting support
+
+**Transaction Types:**
+
+* INCOME
+* EXPENSE
+
+---
+
+### 4. Dashboard & Analytics Module
+
+**Features:**
+
+* Total Income
+* Total Expense
+* Net Balance
+* Category-wise aggregation
+* Monthly trends
+* Weekly trends
+* Recent transactions
+
+---
+
+### 5. Access Control Module
+
+**Roles & Permissions:**
+
+| Role    | Permissions                            |
+| ------- | -------------------------------------- |
+| VIEWER  | Read-only access (dashboard + records) |
+| ANALYST | Read + analytics                       |
+| ADMIN   | Full system access                     |
+
+**Implementation:**
+
+* JWT authentication
+* Spring Security filters
+* `@PreAuthorize` annotations
+
+---
+
+### 6. Validation & Error Handling Module
+
+**Features:**
+
+* Input validation using `@Valid`, `@NotNull`, etc.
+* Global exception handling (`@RestControllerAdvice`)
+* Standardized error responses
+
+---
+
+## Database Design
+
+### User Entity
+
+* id
+* name
+* email (unique)
+* password (BCrypt encoded)
+* role
+* status
+* createdAt
+* updatedAt
+
+---
+
+### FinancialRecord Entity
+
+* id
+* amount
+* type (INCOME / EXPENSE)
+* category
+* date
+* description
+* createdBy
+* createdAt
+* updatedAt
+
+---
+
+## Security Design
+
+* Stateless authentication using JWT
+* Token validation on every request
+* Role-based endpoint protection
+* Method-level authorization using `@PreAuthorize`
+
+---
+
+## API Highlights
+
+### Auth APIs
+
+* `POST /api/auth/login`
+
+---
+
+### User APIs
+
+* `POST /api/users`
+* `GET /api/users`
+* `GET /api/users/{id}`
+* `PUT /api/users/{id}/role`
+* `PATCH /api/users/{id}/status`
+
+---
+
+### Financial APIs
+
+* `POST /api/records`
+* `GET /api/records`
+* `GET /api/records/filter`
+* `PUT /api/records/{id}`
+* `DELETE /api/records/{id}`
+
+---
+
+### Dashboard APIs
+
+* `GET /api/dashboard/summary`
+* `GET /api/dashboard/category-summary`
+* `GET /api/dashboard/trends`
+* `GET /api/dashboard/trends/weekly`
+* `GET /api/dashboard/recent`
+
+---
+
+##  API Documentation
+
+Swagger UI available at:
+
+```text
+http://localhost:8080/swagger-ui/index.html
 ```
 
-### 2. Configure environment variables (recommended for production)
+---
+
+##  Setup Instructions
+
+### 1. Clone Repository
+
 ```bash
-export DB_USERNAME=postgres
-export DB_PASSWORD=yourpassword
-export JWT_SECRET=$(openssl rand -base64 32)
-export JWT_EXPIRATION_MS=86400000   # 24 hours
+git clone <repo-url>
+cd finance-app
 ```
 
-### 3. Run
+---
+
+### 2. Configure Database
+
+Update `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/financeapp
+spring.datasource.username=postgres
+spring.datasource.password=your_password
+```
+
+---
+
+### 3. Run Application
+
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 ---
 
-## API Reference
+##  Testing
 
-### Authentication
+###  Test Coverage
 
-#### POST /api/auth/login
-
-**Request:**
-```json
-{
-  "email": "admin@example.com",
-  "password": "admin1234"
-}
-```
-
-**Response 200 OK:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6...",
-  "role": "ADMIN",
-  "username": "Alice Admin"
-}
-```
-
-**Response 401 — invalid credentials:**
-```json
-{
-  "status": 401,
-  "message": "Invalid email or password",
-  "timestamp": "2025-04-02T10:00:00"
-}
-```
-
-**Response 401 — inactive account:**
-```json
-{
-  "status": 401,
-  "message": "Account is inactive. Please contact an administrator.",
-  "timestamp": "2025-04-02T10:00:00"
-}
-```
+| Type              | Count        |
+| ----------------- | ------------ |
+| Unit Tests        | 18           |
+| Integration Tests | 22           |
+| Security Tests    | 18           |
+| **Total**         | **58 tests** |
 
 ---
 
-### User Management
+### Testing Scope
 
-All user endpoints require `Authorization: Bearer <token>` header.
-
-#### POST /api/users — Admin only
-
-**Request:**
-```json
-{
-  "name": "Bob Analyst",
-  "email": "bob@example.com",
-  "password": "securepass",
-  "role": "ANALYST"
-}
-```
-
-**Response 201 Created:**
-```json
-{
-  "id": 2,
-  "name": "Bob Analyst",
-  "email": "bob@example.com",
-  "role": "ANALYST",
-  "status": "ACTIVE",
-  "createdAt": "2025-04-02T10:05:00",
-  "updatedAt": "2025-04-02T10:05:00"
-}
-```
-
-**Response 409 — duplicate email:**
-```json
-{
-  "status": 409,
-  "message": "A user with email 'bob@example.com' already exists",
-  "timestamp": "2025-04-02T10:05:00"
-}
-```
+* Business logic validation
+* API integration flow
+* Pagination & filtering
+* Security (JWT, roles, invalid tokens)
+* End-to-end scenarios
 
 ---
 
-#### GET /api/users — Admin only
+## Key Features Implemented
 
-**Response 200 OK:**
-```json
-[
-  {
-    "id": 1,
-    "name": "Alice Admin",
-    "email": "admin@example.com",
-    "role": "ADMIN",
-    "status": "ACTIVE",
-    "createdAt": "2025-04-01T09:00:00",
-    "updatedAt": "2025-04-01T09:00:00"
-  },
-  {
-    "id": 2,
-    "name": "Bob Analyst",
-    "email": "bob@example.com",
-    "role": "ANALYST",
-    "status": "ACTIVE",
-    "createdAt": "2025-04-02T10:05:00",
-    "updatedAt": "2025-04-02T10:05:00"
-  }
-]
-```
+* Clean layered architecture
+* DTO-based design
+* Secure authentication system
+* Role-based authorization
+* Pagination + filtering + sorting
+* Aggregation queries for analytics
+* Global exception handling
+* Swagger documentation
+* Comprehensive test suite
 
 ---
 
-#### GET /api/users/{id} — Admin, Analyst, Viewer
+## Design Decisions & Assumptions
 
-**Response 200 OK:**
-```json
-{
-  "id": 2,
-  "name": "Bob Analyst",
-  "email": "bob@example.com",
-  "role": "ANALYST",
-  "status": "ACTIVE",
-  "createdAt": "2025-04-02T10:05:00",
-  "updatedAt": "2025-04-02T10:05:00"
-}
-```
-
-**Response 404:**
-```json
-{
-  "status": 404,
-  "message": "User not found with id: 99",
-  "timestamp": "2025-04-02T10:10:00"
-}
-```
+* JWT used for stateless scalability
+* Roles implemented using ENUM for simplicity
+* Pagination added for performance optimization
+* Aggregation handled at database level for efficiency
+* DTOs used to avoid exposing entities
 
 ---
 
-#### PUT /api/users/{id}/role — Admin only
+## Highlights
 
-**Request:**
-```json
-{
-  "role": "VIEWER"
-}
-```
-
-**Response 200 OK:**
-```json
-{
-  "id": 2,
-  "name": "Bob Analyst",
-  "email": "bob@example.com",
-  "role": "VIEWER",
-  "status": "ACTIVE",
-  "createdAt": "2025-04-02T10:05:00",
-  "updatedAt": "2025-04-02T10:15:00"
-}
-```
+* Production-level backend architecture
+* Strong focus on security and validation
+* Real-world financial analytics implementation
+* Extensive automated testing (including security testing)
 
 ---
 
-#### PATCH /api/users/{id}/status — Admin only
+## Future Enhancements
 
-**Request:**
-```json
-{
-  "status": "INACTIVE"
-}
-```
-
-**Response 200 OK:**
-```json
-{
-  "id": 2,
-  "name": "Bob Analyst",
-  "email": "bob@example.com",
-  "role": "VIEWER",
-  "status": "INACTIVE",
-  "createdAt": "2025-04-02T10:05:00",
-  "updatedAt": "2025-04-02T10:20:00"
-}
-```
+* Refresh token mechanism
+* Rate limiting
+* Caching (Redis)
+* Multi-user financial ownership
+* Export reports (PDF/CSV)
 
 ---
 
-## Role Permissions Summary
+## Conclusion
 
-| Endpoint                      | VIEWER | ANALYST | ADMIN |
-|-------------------------------|--------|---------|-------|
-| POST /api/auth/login          | ✅     | ✅      | ✅    |
-| POST /api/users               | ❌     | ❌      | ✅    |
-| GET  /api/users               | ❌     | ❌      | ✅    |
-| GET  /api/users/{id}          | ✅     | ✅      | ✅    |
-| PUT  /api/users/{id}/role     | ❌     | ❌      | ✅    |
-| PATCH /api/users/{id}/status  | ❌     | ❌      | ✅    |
+This project demonstrates:
+
+* Strong backend development skills
+* Clean architecture and code organization
+* Real-world problem solving
+* Security-first design
+* Production-ready system thinking
 
 ---
-
-## Security Notes
-
-- Passwords are hashed with BCrypt (strength 10 by default).
-- JWT is signed with HMAC-SHA256. Never commit the secret to source control.
-- CSRF is disabled — appropriate for a stateless REST API with JWT.
-- Inactive users receive a `401` on login and cannot authenticate.
-- Generate a production secret with: `openssl rand -base64 32`
