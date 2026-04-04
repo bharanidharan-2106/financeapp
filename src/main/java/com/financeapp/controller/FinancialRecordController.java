@@ -98,11 +98,11 @@ public class FinancialRecordController {
             summary = "Delete a financial record",
             description = "Permanently deletes a financial record by ID. Access: ADMIN only."
     )
-    public ResponseEntity<Void> deleteRecord(
+    public ResponseEntity<String> deleteRecord(
             @Parameter(description = "Financial record ID") @PathVariable Long id) {
 
         financialRecordService.deleteRecord(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Deleted successfully");
     }
 
     @GetMapping("/filter")
