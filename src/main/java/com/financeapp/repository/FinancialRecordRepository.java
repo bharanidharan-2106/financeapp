@@ -5,7 +5,9 @@ import com.financeapp.entity.TransactionType;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface FinancialRecordRepository extends JpaRepository<FinancialRecord, Long> {
+public interface FinancialRecordRepository extends JpaRepository<FinancialRecord, Long>, JpaSpecificationExecutor<FinancialRecord> {
 
     List<FinancialRecord> findByType(TransactionType type);
 
@@ -24,21 +26,45 @@ public interface FinancialRecordRepository extends JpaRepository<FinancialRecord
     
     Page<FinancialRecord> findAll(Pageable pageable);
 
-    @Query("""
-            SELECT r FROM FinancialRecord r
-            WHERE (:startDate IS NULL OR r.date >= :startDate)
-              AND (:endDate   IS NULL OR r.date <= :endDate)
-              AND (:category  IS NULL OR LOWER(CAST(r.category AS string)) = LOWER(:category))
-              AND (:type      IS NULL OR r.type = :type)
-            ORDER BY r.date DESC
-            """)
-    Page<FinancialRecord> filterRecords(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("category") String category,
-            @Param("type") TransactionType type,
-            Pageable pageable
-    );
+    // Use default Specification-based filtering to avoid NULL enum parameter issues
+    default Page<FinancialRecord> filterRecords(
+            LocalDate startDate,
+            LocalDate endDate,
+            String category,
+            TransactionType type,
+            Pageable pageable) {
+        
+        Specification<FinancialRecord> spec = Specification
+                .where(startDate != null ? getDateRangeSpec(startDate, endDate) : null)
+                .and(category != null ? getCategorySpec(category) : null)
+                .and(type != null ? getTypeSpec(type) : null);
+        
+        return findAll(spec, pageable);
+    }
+    
+    static Specification<FinancialRecord> getDateRangeSpec(LocalDate startDate, LocalDate endDate) {
+        return (root, query, cb) -> {
+            if (startDate != null && endDate != null) {
+                return cb.and(
+                    cb.greaterThanOrEqualTo(root.get("date"), startDate),
+                    cb.lessThanOrEqualTo(root.get("date"), endDate)
+                );
+            } else if (startDate != null) {
+                return cb.greaterThanOrEqualTo(root.get("date"), startDate);
+            } else if (endDate != null) {
+                return cb.lessThanOrEqualTo(root.get("date"), endDate);
+            }
+            return null;
+        };
+    }
+    
+    static Specification<FinancialRecord> getCategorySpec(String category) {
+        return (root, query, cb) -> cb.equal(root.get("category"), category);
+    }
+    
+    static Specification<FinancialRecord> getTypeSpec(TransactionType type) {
+        return (root, query, cb) -> cb.equal(root.get("type"), type);
+    }
  
     @Query("SELECT COALESCE(SUM(r.amount), 0) FROM FinancialRecord r WHERE r.type = 'INCOME'")
     Double getTotalIncome();
@@ -75,4 +101,4 @@ public interface FinancialRecordRepository extends JpaRepository<FinancialRecord
     List<Object[]> getWeeklyTrends();
  
     List<FinancialRecord> findTop5ByOrderByDateDesc();
-} 
+}

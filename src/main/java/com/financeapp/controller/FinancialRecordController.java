@@ -67,6 +67,40 @@ public class FinancialRecordController {
         return ResponseEntity.ok(financialRecordService.getAllRecords(pageable));
     }
 
+    @GetMapping("/filter")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
+    @Operation(
+            summary = "Filter financial records",
+            description = "Filters records by optional date range, category, and/or transaction type. All parameters are optional. Access: ADMIN, ANALYST."
+    )
+    public ResponseEntity<Page<FinancialRecordResponse>> filterRecords(
+
+            @Parameter(description = "Start date (inclusive), format: yyyy-MM-dd")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @Parameter(description = "End date (inclusive), format: yyyy-MM-dd")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+
+            @Parameter(description = "Category name (case-insensitive match)")
+            @RequestParam(required = false)
+            String category,
+
+            @Parameter(description = "Transaction type: INCOME or EXPENSE")
+            @RequestParam(required = false)
+            TransactionType type,
+    		
+    		@PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC)
+    		Pageable pageable) {
+    
+        	return ResponseEntity.ok(
+                financialRecordService.filterRecords(startDate, endDate, category, type, pageable)
+        );
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST', 'VIEWER')")
     @Operation(
@@ -103,39 +137,5 @@ public class FinancialRecordController {
 
         financialRecordService.deleteRecord(id);
         return ResponseEntity.ok("Deleted successfully");
-    }
-
-    @GetMapping("/filter")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
-    @Operation(
-            summary = "Filter financial records",
-            description = "Filters records by optional date range, category, and/or transaction type. All parameters are optional. Access: ADMIN, ANALYST."
-    )
-    public ResponseEntity<Page<FinancialRecordResponse>> filterRecords(
-
-            @Parameter(description = "Start date (inclusive), format: yyyy-MM-dd")
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate startDate,
-
-            @Parameter(description = "End date (inclusive), format: yyyy-MM-dd")
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate endDate,
-
-            @Parameter(description = "Category name (case-insensitive match)")
-            @RequestParam(required = false)
-            String category,
-
-            @Parameter(description = "Transaction type: INCOME or EXPENSE")
-            @RequestParam(required = false)
-            TransactionType type,
-    		
-    		@PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC)
-    		Pageable pageable) {
-    
-        	return ResponseEntity.ok(
-                financialRecordService.filterRecords(startDate, endDate, category, type, pageable)
-        );
     }
 }

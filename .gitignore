@@ -52,3 +52,5 @@ build/
 surefire-reports/
 jacoco.exec
 
+POSTMAN_TEST_GUIDE.md
+
