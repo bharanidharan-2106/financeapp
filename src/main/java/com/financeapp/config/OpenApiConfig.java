@@ -16,7 +16,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Finance App API")
                         .version("1.0")
-                        .description("Authentication & User Management APIs"))
+                        .description("Finance Record and Dashboard Management APIs"))
                 		.components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
