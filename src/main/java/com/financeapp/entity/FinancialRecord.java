@@ -62,4 +62,15 @@ public class FinancialRecord {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
+    @Column
+    private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deleted_by_id")
+    private User deletedBy;
 }

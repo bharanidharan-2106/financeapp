@@ -1,5 +1,6 @@
-	package com.financeapp.config;
+package com.financeapp.config;
 
+import com.financeapp.security.CustomAccessDeniedHandler;
 import com.financeapp.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +27,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          UserDetailsService userDetailsService) {
+                          UserDetailsService userDetailsService,
+                          CustomAccessDeniedHandler accessDeniedHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -52,6 +56,9 @@ public class SecurityConfig {
                         "/swagger-ui.html"
                 ).permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(exception ->
+                exception.accessDeniedHandler(accessDeniedHandler)
             )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,5 +1,6 @@
 package com.financeapp.service;
 
+import com.financeapp.dto.BulkRecordRequest;
 import com.financeapp.dto.FinancialRecordRequest;
 import com.financeapp.dto.FinancialRecordResponse;
 import com.financeapp.entity.TransactionType;
@@ -13,9 +14,15 @@ public interface FinancialRecordService {
 
     FinancialRecordResponse createRecord(FinancialRecordRequest request);
 
+    Page<FinancialRecordResponse> createBulkRecords(BulkRecordRequest request);
+
     FinancialRecordResponse updateRecord(Long id, FinancialRecordRequest request);
 
     void deleteRecord(Long id);
+
+    void restoreRecord(Long id);
+
+    Page<FinancialRecordResponse> getDeletedRecords(Pageable pageable);
 
     Page<FinancialRecordResponse> getAllRecords(Pageable pageable);
 

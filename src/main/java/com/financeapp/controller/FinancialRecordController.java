@@ -1,5 +1,6 @@
 package com.financeapp.controller;
 
+import com.financeapp.dto.BulkRecordRequest;
 import com.financeapp.dto.FinancialRecordRequest;
 import com.financeapp.dto.FinancialRecordResponse;
 import com.financeapp.entity.TransactionType;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,11 +56,24 @@ public class FinancialRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Create multiple financial records",
+            description = "Creates multiple financial records in a single request. All records are associated with the authenticated user. Access: ADMIN only."
+    )
+    public ResponseEntity<Page<FinancialRecordResponse>> createBulkRecords(
+            @Valid @RequestBody BulkRecordRequest request) {
+
+        Page<FinancialRecordResponse> response = financialRecordService.createBulkRecords(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST', 'VIEWER')")
     @Operation(
             summary = "Get all financial records",
-            description = "Returns all financial records ordered by insertion. Access: ADMIN, ANALYST, VIEWER."
+            description = "Returns all financial records ordered by insertion. Sorting is based on Date in Descending order. Access: ADMIN, ANALYST, VIEWER."
     )
     public ResponseEntity<Page<FinancialRecordResponse>> getAllRecords(
             @PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC)
@@ -71,16 +86,16 @@ public class FinancialRecordController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
     @Operation(
             summary = "Filter financial records",
-            description = "Filters records by optional date range, category, and/or transaction type. All parameters are optional. Access: ADMIN, ANALYST."
+            description = "Filters records by optional date range, category, and/or transaction type. All parameters are optional. Sorting is based on Date in Descending order. Access: ADMIN, ANALYST."
     )
     public ResponseEntity<Page<FinancialRecordResponse>> filterRecords(
 
-            @Parameter(description = "Start date (inclusive), format: yyyy-MM-dd")
+            @Parameter(description = "Start date (inclusive), format: yyyy-mm-dd")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate startDate,
 
-            @Parameter(description = "End date (inclusive), format: yyyy-MM-dd")
+            @Parameter(description = "End date (inclusive), format: yyyy-mm-dd")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate endDate,
@@ -99,6 +114,19 @@ public class FinancialRecordController {
         	return ResponseEntity.ok(
                 financialRecordService.filterRecords(startDate, endDate, category, type, pageable)
         );
+    }
+
+    @GetMapping("/deleted")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Get soft-deleted financial records",
+            description = "Returns all soft-deleted financial records. Access: ADMIN only."
+    )
+    public ResponseEntity<Page<FinancialRecordResponse>> getDeletedRecords(
+            @PageableDefault(size = 5, sort = "date", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+
+        return ResponseEntity.ok(financialRecordService.getDeletedRecords(pageable));
     }
 
     @GetMapping("/{id}")
@@ -129,13 +157,26 @@ public class FinancialRecordController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-            summary = "Delete a financial record",
-            description = "Permanently deletes a financial record by ID. Access: ADMIN only."
+            summary = "Soft delete a financial record",
+            description = "Soft deletes a financial record (data is preserved). Access: ADMIN only."
     )
     public ResponseEntity<String> deleteRecord(
             @Parameter(description = "Financial record ID") @PathVariable Long id) {
 
         financialRecordService.deleteRecord(id);
-        return ResponseEntity.ok("Deleted successfully");
+        return ResponseEntity.ok("Record soft-deleted successfully");
+    }
+
+    @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Restore a soft-deleted financial record",
+            description = "Restores a previously soft-deleted financial record. Access: ADMIN only."
+    )
+    public ResponseEntity<FinancialRecordResponse> restoreRecord(
+            @Parameter(description = "Financial record ID") @PathVariable Long id) {
+
+        financialRecordService.restoreRecord(id);
+        return ResponseEntity.ok(financialRecordService.getRecordById(id));
     }
 }

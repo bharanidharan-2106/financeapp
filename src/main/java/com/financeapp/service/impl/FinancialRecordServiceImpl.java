@@ -1,5 +1,6 @@
 package com.financeapp.service.impl;
 
+import com.financeapp.dto.BulkRecordRequest;
 import com.financeapp.dto.FinancialRecordRequest;
 import com.financeapp.dto.FinancialRecordResponse;
 import com.financeapp.entity.FinancialRecord;
@@ -20,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,6 +47,25 @@ public class FinancialRecordServiceImpl implements FinancialRecordService {
     }
 
     @Override
+    public Page<FinancialRecordResponse> createBulkRecords(BulkRecordRequest request) {
+        User authenticatedUser = resolveAuthenticatedUser();
+        
+        var records = request.getRecords().stream()
+                .map(recordRequest -> {
+                    FinancialRecord record = FinancialRecordMapper.toEntity(recordRequest, authenticatedUser);
+                    return financialRecordRepository.save(record);
+                })
+                .collect(Collectors.toList());
+        
+        // Convert the list to a Page and return
+        List<FinancialRecordResponse> responses = records.stream()
+                .map(FinancialRecordMapper::toResponse)
+                .collect(Collectors.toList());
+        
+        return new org.springframework.data.domain.PageImpl<>(responses);
+    }
+
+    @Override
     public FinancialRecordResponse updateRecord(Long id, FinancialRecordRequest request) {
         FinancialRecord existing = findRecordOrThrow(id);
 
@@ -59,7 +82,36 @@ public class FinancialRecordServiceImpl implements FinancialRecordService {
     @Override
     public void deleteRecord(Long id) {
         FinancialRecord existing = findRecordOrThrow(id);
-        financialRecordRepository.delete(existing);
+        User authenticatedUser = resolveAuthenticatedUser();
+        
+        existing.setIsDeleted(true);
+        existing.setDeletedAt(LocalDateTime.now());
+        existing.setDeletedBy(authenticatedUser);
+        
+        financialRecordRepository.save(existing);
+    }
+
+    @Override
+    public void restoreRecord(Long id) {
+        FinancialRecord existing = financialRecordRepository.findByIdIncludingDeleted(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Financial record", id));
+        
+        if (!existing.getIsDeleted()) {
+            throw new IllegalStateException("Record is not deleted and cannot be restored");
+        }
+        
+        existing.setIsDeleted(false);
+        existing.setDeletedAt(null);
+        existing.setDeletedBy(null);
+        
+        financialRecordRepository.save(existing);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<FinancialRecordResponse> getDeletedRecords(Pageable pageable) {
+        return financialRecordRepository.findDeletedRecords(pageable)
+                .map(FinancialRecordMapper::toResponse);
     }
 
     @Override

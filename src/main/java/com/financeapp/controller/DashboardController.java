@@ -6,15 +6,18 @@ import com.financeapp.dto.RecentTransactionResponse;
 import com.financeapp.dto.TrendResponse;
 import com.financeapp.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -76,5 +79,21 @@ public class DashboardController {
     )
     public ResponseEntity<List<RecentTransactionResponse>> getRecentTransactions() {
         return ResponseEntity.ok(dashboardService.getRecentTransactions());
+    }
+
+    @GetMapping("/comparison")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST')")
+    @Operation(
+            summary = "Compare two months",
+            description = "Compares financial data between two months. Returns income, expense, balance for each month and the differences. Access: ADMIN, ANALYST."
+    )
+    public ResponseEntity<Map<String, Object>> compareMonths(
+            @Parameter(description = "Current month to analyze (format: YYYY-MM, e.g. 2026-04)", required = true)
+            @RequestParam(name = "month") String month,
+
+            @Parameter(description = "Month to compare with (format: YYYY-MM, e.g. 2026-03)", required = true)
+            @RequestParam(name = "compareWith") String compareWith) {
+
+        return ResponseEntity.ok(dashboardService.compareMonths(month, compareWith));
     }
 }
