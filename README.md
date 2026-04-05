@@ -1,249 +1,310 @@
 # Finance Data Processing & Access Control Backend
 
-A production-grade RESTful backend system for secure financial record management and user administration. Built using Spring Boot with JWT authentication and role-based access control (RBAC), following clean architecture principles for scalability and maintainability.
+A production-grade RESTful backend system for secure financial record management and role-based user access. The application is built using Spring Boot with JWT authentication and follows clean architecture principles for scalability, maintainability, and real-world usability.
 
 ---
 
-## 📋 Table of Contents
+## Live Application
 
-* Technology Stack
-* Architecture & Design
-* Core Features
-* Project Structure
-* Quick Start
-* API Overview
-* Security Implementation
-* Database Design
-* Testing
-* Key Highlights
+Swagger UI:
+[https://financeapp-vkrm.onrender.com/swagger-ui/index.html#/](https://financeapp-vkrm.onrender.com/swagger-ui/index.html#/)
 
 ---
 
-## 🛠 Technology Stack
+## Project Overview
 
-| Layer      | Technology              |
-| ---------- | ----------------------- |
-| Language   | Java 17                 |
-| Framework  | Spring Boot 3           |
-| Security   | Spring Security + JWT   |
-| Database   | PostgreSQL              |
-| ORM        | Spring Data JPA         |
-| Build Tool | Maven                   |
-| Docs       | Swagger (OpenAPI)       |
-| Testing    | JUnit, Mockito, MockMvc |
+This backend system is designed for a finance dashboard where users interact with financial data based on their assigned roles.
+
+The system supports:
+
+* Secure authentication and authorization
+* Role-based access control (RBAC)
+* Financial record lifecycle management
+* Dashboard analytics and insights
+* Data validation and error handling
 
 ---
 
-## 🏗 Architecture & Design
+## Why Spring Boot and PostgreSQL
 
-The application follows a **layered architecture**:
+### Spring Boot
 
-Request → Controller → Service → Repository → Database
+* Rapid backend development with minimal configuration
+* Built-in support for REST APIs, dependency injection, and validation
+* Seamless integration with Spring Security for authentication and authorization
+* Widely used in enterprise-grade backend systems
 
-### Key Principles
+### PostgreSQL
 
-* Separation of concerns (Controller / Service / Repository)
+* Strong ACID compliance ensures financial data integrity
+* Efficient handling of complex queries and aggregations
+* Ideal for analytical operations such as trends and summaries
+* Reliable and scalable for production deployments
+
+---
+
+## Technology Stack
+
+| Layer         | Technology                |
+| ------------- | ------------------------- |
+| Language      | Java 17                   |
+| Framework     | Spring Boot 3             |
+| Security      | Spring Security + JWT     |
+| Database      | PostgreSQL                |
+| ORM           | Spring Data JPA           |
+| Build Tool    | Maven                     |
+| Documentation | Swagger (OpenAPI)         |
+| Testing       | JUnit 5, Mockito, MockMvc |
+| Deployment    | Render                    |
+
+---
+
+## Architecture & Design
+
+Layered Architecture:
+
+Client → Controller → Service → Repository → Database
+
+Key Principles:
+
+* Separation of concerns
 * DTO-based communication
-* Global exception handling
 * Stateless authentication using JWT
 * Role-based authorization using annotations
+* Centralized exception handling
+* Clean and modular structure
 
 ---
 
-## 🚀 Core Features
+## Swagger Usage Guide 
 
-### 🔐 Authentication & Authorization
+To access secured APIs, authentication is required.
 
-* JWT-based login system
+### Option 1: Login
+
+POST /api/auth/login
+
+```
+email: admin01@gmail.com
+password: pass1234
+```
+
+### Option 2: Register Admin
+
+POST /api/auth/register
+
+After login or registration:
+
+1. A JWT token will be returned in the response
+2. Copy the token
+3. Click the **Authorize** button in Swagger (top-right)
+4. Paste the token.
+5. Click "Authorize"
+
+Now all secured APIs will be accessible.
+
+Note: Without authorization, most APIs will not work due to role-based access control.
+
+---
+
+## Functional Features
+
+### Authentication & Authorization
+
+* JWT-based authentication
 * Stateless session management
-* Role-based access control (ADMIN, ANALYST, VIEWER)
+* Secure password hashing using BCrypt
+* Role-based endpoint protection
 
-### 👤 User Management
+### User Management
 
-* Create and manage users
-* Role assignment and status control
-* Admin-restricted operations
+* Create users (Admin only)
+* Assign roles (ADMIN, ANALYST, VIEWER)
+* Activate or deactivate users
+* Fetch users with role-based restrictions
 
-### 💰 Financial Records
+### Financial Records Management
 
-* CRUD operations for transactions
-* Filtering (date, category, type)
+* Create, update, delete financial records
+* Bulk record creation support
+* Soft delete and restore functionality
+* Filtering by date, category, and type
 * Pagination and sorting support
 
-### 📊 Dashboard & Analytics
+### Dashboard & Analytics
 
-* Total income & expense
-* Net balance calculation
+* Total income and expense calculation
+* Net balance computation
+* Monthly and weekly trends
 * Category-wise aggregation
-* Trends (monthly & weekly)
 * Recent transactions
+* Month-to-month comparison
 
-### ⚠️ Validation & Error Handling
+### Access Control
+
+* Strict enforcement of role-based permissions
+* Viewer: Read-only access
+* Analyst: Read + analytics
+* Admin: Full access
+
+### Validation & Error Handling
 
 * Input validation using annotations
-* Centralized exception handling
 * Standardized API error responses
+* Global exception handling
+* Proper HTTP status usage
 
 ---
 
-## 📁 Project Structure
+## API Overview
 
-```
-controller/   → REST endpoints  
-service/      → Business logic  
-repository/   → Data access  
-entity/       → Database models  
-dto/          → Request/response objects  
-security/     → JWT & authentication  
-exception/    → Error handling  
-util/         → Mappers & helpers  
-```
+### Authentication
+
+POST /api/auth/register
+POST /api/auth/login
 
 ---
 
-## 🚀 Quick Start
+### User Management
 
-### Prerequisites
-
-* Java 17+
-* Maven
-* PostgreSQL
-
-### Setup
-
-```bash
-git clone <repo-url>
-cd financeapp
-```
-
-### Configure Database
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/financeapp
-spring.datasource.username=postgres
-spring.datasource.password=your_password
-```
-
-### Run Application
-
-```bash
-mvn spring-boot:run
-```
-
-### Swagger UI
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
+POST /api/users
+GET /api/users
+GET /api/users/{id}
+PUT /api/users/{id}/role
+PATCH /api/users/{id}/status
 
 ---
-
-## 📡 API Overview
-
-### Auth
-
-* POST /api/auth/login
-
-### Users (Admin Only)
-
-* POST /api/users
-* GET /api/users
-* PUT /api/users/{id}/role
-* PATCH /api/users/{id}/status
 
 ### Financial Records
 
-* POST /api/records
-* GET /api/records
-* PUT /api/records/{id}
-* DELETE /api/records/{id}
+POST /api/records
+POST /api/records/bulk
+GET /api/records
+GET /api/records/{id}
+PUT /api/records/{id}
+DELETE /api/records/{id}
+PATCH /api/records/{id}/restore
 
-### Dashboard
+Advanced:
 
-* GET /api/dashboard/summary
-* GET /api/dashboard/trends
-* GET /api/dashboard/category-summary
+GET /api/records/filter
+GET /api/records/deleted
 
----
+Features:
 
-## 🔐 Security Implementation
-
-* JWT authentication (stateless)
-* Password hashing using BCrypt
-* Role-based endpoint protection
-* Method-level authorization using `@PreAuthorize`
-
-### Roles
-
-| Role    | Access Level     |
-| ------- | ---------------- |
-| VIEWER  | Read-only        |
-| ANALYST | Read + analytics |
-| ADMIN   | Full access      |
+* Pagination supported
+* Sorting supported
+* Filtering supported
 
 ---
 
-## 💾 Database Design
+### Dashboard APIs
 
-### User
-
-* id, name, email, password
-* role, status
-* createdAt, updatedAt
-
-### FinancialRecord
-
-* id, amount, type
-* category, date, description
-* createdBy, timestamps
+GET /api/dashboard/summary
+GET /api/dashboard/trends
+GET /api/dashboard/trends/weekly
+GET /api/dashboard/recent
+GET /api/dashboard/comparison
+GET /api/dashboard/category-summary
 
 ---
 
-## 🧪 Testing
+## Database Design
 
-### Coverage
+Entity Relationship Diagram (ERD)
 
-* Unit Tests
-* Integration Tests
-* Security Tests
++-------------------+          +-------------------------+
+|       User        |          |    FinancialRecord      |
++-------------------+          +-------------------------+
+| id (PK)           |<---------| created_by_id (FK)      |
+| name              |          | deleted_by_id (FK)      |
+| email (unique)    |          | id (PK)                 |
+| password          |          | amount                  |
+| role              |          | type                    |
+| status            |          | category                |
+| created_at        |          | date                    |
+| updated_at        |          | description             |
++-------------------+          | is_deleted              |
+                               | deleted_at              |
+                               | created_at              |
+                               | updated_at              |
+                               +-------------------------+
 
-### Scope
+## Testing Strategy
 
-* Business logic validation
-* API workflows
-* Authentication & authorization
-* Filtering and pagination
+### Test Summary
+
+| Test Type         | Count |
+| ----------------- | ----- |
+| Unit Tests        | 18    |
+| Integration Tests | 45    |
+| Security Tests    | 8     |
+| End-to-End Tests  | 3     |
+| Total             | 71    |
 
 ---
 
-## 🌟 Key Highlights
+### Testing Breakdown
+
+Unit Testing:
+
+* Service-level validation
+* Mocked dependencies
+* Tools: Mockito, JUnit 5
+
+Integration Testing:
+
+* Full application context
+* API validation using MockMvc
+
+Security Testing:
+
+* JWT validation
+* Role-based access verification
+
+End-to-End Testing:
+
+* Complete workflow validation
+
+---
+
+## Deployment
+
+* Deployed on Render cloud platform
+* PostgreSQL database integrated
+* Live production API available
+
+---
+
+## Key Highlights
 
 * Clean layered architecture
-* Production-ready security design
-* Role-based access control (RBAC)
-* Scalable and maintainable codebase
-* Comprehensive testing strategy
-* Real-world financial analytics implementation
+* Production-ready JWT security
+* Role-based access control implementation
+* Advanced financial analytics APIs
+* Pagination, sorting, and filtering
+* Soft delete and restore support
+* Comprehensive test coverage (71 tests)
+* Live deployed backend
 
 ---
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
-* Refresh token mechanism
-* Rate limiting
+* Refresh token implementation
 * Redis caching
+* Rate limiting
 * Multi-user financial ownership
 * Export reports (PDF/CSV)
 
 ---
 
-## 📌 Conclusion
+## Conclusion
 
-This project demonstrates strong backend engineering skills with a focus on:
+This project demonstrates strong backend engineering capabilities, including:
 
-* Security-first design
-* Clean architecture
-* Real-world problem solving
-* Scalable system development
-
----
+* Secure API design
+* Clean and scalable architecture
+* Proper data modeling
+* Robust access control
+* Real-world financial analytics implementation
