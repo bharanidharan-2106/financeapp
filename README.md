@@ -107,6 +107,84 @@ Note: Without authorization, most APIs will not work due to role-based access co
 
 ---
 
+
+## Local Setup Guide
+
+Follow these steps to run the application locally.
+
+---
+
+### Prerequisites
+
+Ensure the following are installed:
+
+* Java 17 or higher
+* Maven
+* PostgreSQL
+* Git
+
+---
+
+### Step 1: Clone the Repository
+
+```bash
+git clone <your-repository-url>
+cd financeapp
+```
+
+---
+
+### Step 2: Configure PostgreSQL Database
+
+Create a database:
+
+```sql
+CREATE DATABASE financeapp;
+```
+
+Update your `application.properties` (or `application.yml`):
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/financeapp
+spring.datasource.username=postgres
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+---
+
+### Step 3: Build the Project
+
+```bash
+mvn clean install
+```
+
+---
+
+### Step 4: Run the Application
+
+```bash
+mvn spring-boot:run
+```
+
+Application will start on:
+
+```
+http://localhost:8080
+```
+
+---
+
+### Step 5: Access Swagger UI
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+---
+
 ## Functional Features
 
 ### Authentication & Authorization
