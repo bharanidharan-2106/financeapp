@@ -11,6 +11,37 @@ Swagger UI:
 
 ---
 
+## Swagger Usage Guide 
+
+To access secured APIs, authentication is required.
+
+### Option 1: Login
+
+POST /api/auth/login
+
+```
+email: admin01@gmail.com
+password: pass1234
+```
+
+### Option 2: Register Admin
+
+POST /api/auth/register
+
+After login or registration:
+
+1. A JWT token will be returned in the response
+2. Copy the token
+3. Click the **Authorize** button in Swagger (top-right)
+4. Paste the token.
+5. Click "Authorize"
+
+Now all secured APIs will be accessible.
+
+Note: Without authorization, most APIs will not work due to role-based access control.
+
+---
+
 ## Project Overview
 
 This backend system is designed for a finance dashboard where users interact with financial data based on their assigned roles.
@@ -76,37 +107,6 @@ Key Principles:
 
 ---
 
-## Swagger Usage Guide 
-
-To access secured APIs, authentication is required.
-
-### Option 1: Login
-
-POST /api/auth/login
-
-```
-email: admin01@gmail.com
-password: pass1234
-```
-
-### Option 2: Register Admin
-
-POST /api/auth/register
-
-After login or registration:
-
-1. A JWT token will be returned in the response
-2. Copy the token
-3. Click the **Authorize** button in Swagger (top-right)
-4. Paste the token.
-5. Click "Authorize"
-
-Now all secured APIs will be accessible.
-
-Note: Without authorization, most APIs will not work due to role-based access control.
-
----
-
 
 ## Local Setup Guide
 
@@ -128,7 +128,7 @@ Ensure the following are installed:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone <repository-url>
 cd financeapp
 ```
 
