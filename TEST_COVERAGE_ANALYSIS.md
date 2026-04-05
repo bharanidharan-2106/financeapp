@@ -37,8 +37,8 @@ mvn test -Dtest=*SecurityIntegrationTest
 - **Mocking:** Mockito 4.x
 - **Extensions:** @ExtendWith(MockitoExtension.class)
 - **Annotations:** @Mock, @InjectMocks, @BeforeEach, @Test
-```
-```
+
+
 ### Test Files & Distribution:
 
 #### 1. **AuthServiceTest.java** - 7 Test Cases
