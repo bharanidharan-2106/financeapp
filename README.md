@@ -238,35 +238,35 @@ http://localhost:8080/swagger-ui/index.html
 
 ### Authentication
 
-POST /api/auth/register
-POST /api/auth/login
+- POST /api/auth/register
+- POST /api/auth/login
 
 ---
 
 ### User Management
 
-POST /api/users
-GET /api/users
-GET /api/users/{id}
-PUT /api/users/{id}/role
-PATCH /api/users/{id}/status
+= POST /api/users
+- GET /api/users
+- GET /api/users/{id}
+- PUT /api/users/{id}/role
+- PATCH /api/users/{id}/status
 
 ---
 
 ### Financial Records
 
-POST /api/records
-POST /api/records/bulk
-GET /api/records
-GET /api/records/{id}
-PUT /api/records/{id}
-DELETE /api/records/{id}
-PATCH /api/records/{id}/restore
+- POST /api/records
+- POST /api/records/bulk
+- GET /api/records
+- GET /api/records/{id}
+- PUT /api/records/{id}
+- DELETE /api/records/{id}
+- PATCH /api/records/{id}/restore
 
 Advanced:
 
-GET /api/records/filter
-GET /api/records/deleted
+- GET /api/records/filter
+- GET /api/records/deleted
 
 Features:
 
@@ -278,12 +278,12 @@ Features:
 
 ### Dashboard APIs
 
-GET /api/dashboard/summary
-GET /api/dashboard/trends
-GET /api/dashboard/trends/weekly
-GET /api/dashboard/recent
-GET /api/dashboard/comparison
-GET /api/dashboard/category-summary
+- GET /api/dashboard/summary
+- GET /api/dashboard/trends
+- GET /api/dashboard/trends/weekly
+- GET /api/dashboard/recent
+- GET /api/dashboard/comparison
+- GET /api/dashboard/category-summary
 
 ---
 
@@ -291,22 +291,38 @@ GET /api/dashboard/category-summary
 
 Entity Relationship Diagram (ERD)
 
-+-------------------+          +-------------------------+
-|       User        |          |    FinancialRecord      |
-+-------------------+          +-------------------------+
-| id (PK)           |<---------| created_by_id (FK)      |
-| name              |          | deleted_by_id (FK)      |
-| email (unique)    |          | id (PK)                 |
-| password          |          | amount                  |
-| role              |          | type                    |
-| status            |          | category                |
-| created_at        |          | date                    |
-| updated_at        |          | description             |
-+-------------------+          | is_deleted              |
-                               | deleted_at              |
-                               | created_at              |
-                               | updated_at              |
-                               +-------------------------+
+```mermaid
+erDiagram
+    USER {
+        Long id PK
+        String name
+        String email
+        String password
+        String role
+        String status
+        Timestamp created_at
+        Timestamp updated_at
+    }
+
+    FINANCIAL_RECORD {
+        Long id PK
+        Long created_by_id FK
+        Long deleted_by_id FK
+        Double amount
+        String type
+        String category
+        Date date
+        String description
+        Boolean is_deleted
+        Timestamp deleted_at
+        Timestamp created_at
+        Timestamp updated_at
+    }
+
+    USER ||--o{ FINANCIAL_RECORD : created_by
+    USER ||--o{ FINANCIAL_RECORD : deleted_by
+```
+---
 
 ## Testing Strategy
 
