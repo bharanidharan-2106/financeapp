@@ -29,7 +29,7 @@ mvn test -Dtest=*ControllerIntegrationTest
 mvn test -Dtest=*SecurityIntegrationTest
 
 ---
-
+```
 ## Unit Tests (18 Test Cases)
 
 ### Technologies Used:
@@ -37,7 +37,8 @@ mvn test -Dtest=*SecurityIntegrationTest
 - **Mocking:** Mockito 4.x
 - **Extensions:** @ExtendWith(MockitoExtension.class)
 - **Annotations:** @Mock, @InjectMocks, @BeforeEach, @Test
-
+```
+```
 ### Test Files & Distribution:
 
 #### 1. **AuthServiceTest.java** - 7 Test Cases
@@ -50,7 +51,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldLoginWithAnalystRole()
 ✓ Additional auth validation tests
 ```
-
 ---
 
 #### 2. **UserServiceTest.java** - 1 Test Case
@@ -70,7 +70,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldGetAllRecords()
 ✓ Additional pagination tests
 ```
-
 ---
 
 #### 4. **DashboardServiceTest.java** - 2 Test Cases
@@ -78,7 +77,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldGetSummary()
 ✓ shouldGetTrends()
 ```
-
 ---
 
 ## Integration Tests (45 Test Cases)
@@ -99,7 +97,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldRequireContentTypeForLoginRequest()
 ✓ shouldValidateAuthEndpointSecurity()
 ```
-
 ---
 
 #### 2. **UserControllerIntegrationTest.java** - 8 Test Cases
@@ -113,7 +110,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldValidateUserInput()
 ✓ shouldHandleUserNotFound()
 ```
-
 ---
 
 #### 3. **FinancialRecordControllerIntegrationTest.java** - 12 Test Cases
@@ -131,7 +127,6 @@ mvn test -Dtest=*SecurityIntegrationTest
 ✓ shouldDenyAccessToNonAuthorized()
 ✓ shouldHandleRecordNotFound()
 ```
-
 ---
 
 #### 4. **DashboardControllerIntegrationTest.java** - 10 Test Cases
